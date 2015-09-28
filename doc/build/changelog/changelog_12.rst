@@ -11,6 +11,14 @@
         :start-line: 5
 
 .. changelog::
+    :version: 1.2.10+j5.1
+    :released: July 24, 2018
+        :tags: bug
+
+        Added backwards compatibility modification for Nones in boolean clauses.
+        See [the merge request](https://github.com/j5int/sqlalchemy/pull/1/) for details.
+
+    .. change::
     :version: 1.2.10
     :released: July 13, 2018
 
