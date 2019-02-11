@@ -1,15 +1,16 @@
-from sqlalchemy.testing import fixtures, AssertsExecutionResults, profiling
-from sqlalchemy.pool import QueuePool
 from sqlalchemy import pool as pool_module
+from sqlalchemy.pool import QueuePool
+from sqlalchemy.testing import AssertsExecutionResults
+from sqlalchemy.testing import fixtures
+from sqlalchemy.testing import profiling
 
 pool = None
 
 
 class QueuePoolTest(fixtures.TestBase, AssertsExecutionResults):
-    __requires__ = 'cpython',
+    __requires__ = ("cpython",)
 
     class Connection(object):
-
         def rollback(self):
             pass
 
@@ -28,15 +29,21 @@ class QueuePoolTest(fixtures.TestBase, AssertsExecutionResults):
         # has the effect of initializing
         # class-level event listeners on Pool,
         # if not present already.
-        p1 = QueuePool(creator=self.Connection,
-                       pool_size=3, max_overflow=-1,
-                       use_threadlocal=True)
+        p1 = QueuePool(
+            creator=self.Connection,
+            pool_size=3,
+            max_overflow=-1,
+            use_threadlocal=True,
+        )
         p1.connect()
 
         global pool
-        pool = QueuePool(creator=self.Connection,
-                         pool_size=3, max_overflow=-1,
-                         use_threadlocal=True)
+        pool = QueuePool(
+            creator=self.Connection,
+            pool_size=3,
+            max_overflow=-1,
+            use_threadlocal=True,
+        )
 
     @profiling.function_call_count()
     def test_first_connect(self):
@@ -50,6 +57,7 @@ class QueuePoolTest(fixtures.TestBase, AssertsExecutionResults):
         def go():
             conn2 = pool.connect()
             return conn2
+
         go()
 
     def test_second_samethread_connect(self):
@@ -59,4 +67,5 @@ class QueuePoolTest(fixtures.TestBase, AssertsExecutionResults):
         @profiling.function_call_count()
         def go():
             return pool.connect()
+
         go()
