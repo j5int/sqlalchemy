@@ -11,14 +11,26 @@
         :start-line: 5
 
 .. changelog::
+    :version: 1.2.10+j5.2
+    :released: February 11, 2019
+
+    .. change::
+       :tags: feature, mssql
+
+        Updated the mssql reflection dialect to determine which columns are 'mssql_include' columns.
+        See [the merge request](https://github.com/j5int/sqlalchemy/pull/5) for details.
+
+.. changelog::
     :version: 1.2.10+j5.1
     :released: July 24, 2018
-        :tags: bug
+
+    .. change::
+       :tags: bug
 
         Added backwards compatibility modification for Nones in boolean clauses.
         See [the merge request](https://github.com/j5int/sqlalchemy/pull/1/) for details.
 
-    .. change::
+.. changelog::
     :version: 1.2.10
     :released: July 13, 2018
 
