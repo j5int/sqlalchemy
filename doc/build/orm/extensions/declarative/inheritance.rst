@@ -88,6 +88,8 @@ The attribute exclusion logic is provided by the
 behavior can be disabled by passing an explicit ``exclude_properties``
 collection (empty or otherwise) to the ``__mapper_args__``.
 
+.. _declarative_column_conflicts:
+
 Resolving Column Conflicts
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -157,19 +159,6 @@ different table (such as, if we changed ``Manager`` to be joined
 inheritance without fixing ``start_date``), an error is raised which
 indicates an existing :class:`.Column` is trying to be re-assigned to
 a different owning :class:`.Table`.
-
-.. versionadded:: 0.8 :class:`.declared_attr` can be used on a non-mixin
-   class, and the returned :class:`.Column` or other mapped attribute
-   will be applied to the mapping as any other attribute.  Previously,
-   the resulting attribute would be ignored, and also result in a warning
-   being emitted when a subclass was created.
-
-.. versionadded:: 0.8 :class:`.declared_attr`, when used either with a
-   mixin or non-mixin declarative class, can return an existing
-   :class:`.Column` already assigned to the parent :class:`.Table`,
-   to indicate that the re-assignment of the :class:`.Column` should be
-   skipped, however should still be mapped on the target class,
-   in order to resolve duplicate column conflicts.
 
 The same concept can be used with mixin classes (see
 :ref:`declarative_mixins`)::

@@ -1,17 +1,18 @@
 """test the current state of the hasparent() flag."""
 
 
-from sqlalchemy.testing import assert_raises, assert_raises_message
-from sqlalchemy import Integer, String, ForeignKey, Sequence, \
-    exc as sa_exc
-from sqlalchemy.testing.schema import Table, Column
-from sqlalchemy.orm import mapper, relationship, create_session, \
-    sessionmaker, class_mapper, backref, Session
-from sqlalchemy.orm import attributes, exc as orm_exc
+from sqlalchemy import ForeignKey
+from sqlalchemy import Integer
 from sqlalchemy import testing
-from sqlalchemy.testing import eq_
+from sqlalchemy.orm import attributes
+from sqlalchemy.orm import exc as orm_exc
+from sqlalchemy.orm import mapper
+from sqlalchemy.orm import relationship
+from sqlalchemy.orm import Session
+from sqlalchemy.testing import assert_raises_message
 from sqlalchemy.testing import fixtures
-from test.orm import _fixtures
+from sqlalchemy.testing.schema import Column
+from sqlalchemy.testing.schema import Table
 from sqlalchemy.testing.util import gc_collect
 
 
@@ -23,24 +24,33 @@ class ParentRemovalTest(fixtures.MappedTest):
     raised.
 
     """
+
     run_inserts = None
 
     @classmethod
     def define_tables(cls, metadata):
-        if testing.against('oracle'):
-            fk_args = dict(deferrable=True, initially='deferred')
-        elif testing.against('mysql'):
+        if testing.against("oracle"):
+            fk_args = dict(deferrable=True, initially="deferred")
+        elif testing.against("mysql"):
             fk_args = {}
         else:
-            fk_args = dict(onupdate='cascade')
+            fk_args = dict(onupdate="cascade")
 
-        Table('users', metadata,
-              Column('id', Integer, primary_key=True,
-                     test_needs_autoincrement=True))
-        Table('addresses', metadata,
-              Column('id', Integer, primary_key=True,
-                     test_needs_autoincrement=True),
-              Column('user_id', Integer, ForeignKey('users.id', **fk_args)))
+        Table(
+            "users",
+            metadata,
+            Column(
+                "id", Integer, primary_key=True, test_needs_autoincrement=True
+            ),
+        )
+        Table(
+            "addresses",
+            metadata,
+            Column(
+                "id", Integer, primary_key=True, test_needs_autoincrement=True
+            ),
+            Column("user_id", Integer, ForeignKey("users.id", **fk_args)),
+        )
 
     @classmethod
     def setup_classes(cls):
@@ -53,11 +63,15 @@ class ParentRemovalTest(fixtures.MappedTest):
     @classmethod
     def setup_mappers(cls):
         mapper(cls.classes.Address, cls.tables.addresses)
-        mapper(cls.classes.User, cls.tables.users, properties={
-            'addresses': relationship(cls.classes.Address,
-                                      cascade='all, delete-orphan'),
-
-        })
+        mapper(
+            cls.classes.User,
+            cls.tables.users,
+            properties={
+                "addresses": relationship(
+                    cls.classes.Address, cascade="all, delete-orphan"
+                )
+            },
+        )
 
     def _assert_hasparent(self, a1):
         assert attributes.has_parent(self.classes.User, a1, "addresses")
@@ -132,7 +146,8 @@ class ParentRemovalTest(fixtures.MappedTest):
         assert_raises_message(
             orm_exc.StaleDataError,
             "can't be sure this is the most recent parent.",
-            u1.addresses.remove, a1
+            u1.addresses.remove,
+            a1,
         )
 
         # unfortunately, u1.addresses was impacted
@@ -185,7 +200,8 @@ class ParentRemovalTest(fixtures.MappedTest):
         assert_raises_message(
             orm_exc.StaleDataError,
             "can't be sure this is the most recent parent.",
-            u1.addresses.remove, a1
+            u1.addresses.remove,
+            a1,
         )
 
         s.flush()
