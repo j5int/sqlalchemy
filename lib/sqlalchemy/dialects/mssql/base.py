@@ -2497,22 +2497,9 @@ class MSDialect(default.DefaultDialect):
         self, connection, tablename, dbname, owner, schema, **kw
     ):
         pkeys = []
-        TC = ischema.constraints
-        C = ischema.key_constraints.alias("C")
-
-        # Primary key constraints
-        s = sql.select(
-            [C.c.column_name, TC.c.constraint_type, C.c.constraint_name],
-            sql.and_(
-                TC.c.constraint_name == C.c.constraint_name,
-                TC.c.table_schema == C.c.table_schema,
-                C.c.table_name == tablename,
-                C.c.table_schema == owner,
-            ),
-        )
-        c = connection.execute(s)
+        C, TC, constraint_data = self._get_constraints(connection, owner, tablename)
         constraint_name = None
-        for row in c:
+        for row in constraint_data:
             if "PRIMARY" in row[TC.c.constraint_type.name]:
                 pkeys.append(row[0])
                 if constraint_name is None:
@@ -2524,9 +2511,21 @@ class MSDialect(default.DefaultDialect):
     def get_unique_constraints(
             self, connection, tablename, dbname, owner, schema, **kw
     ):
+        C, TC, constraint_data = self._get_constraints(connection, owner, tablename)
+
+        uniques = {}
+        for row in constraint_data:
+            if "UNIQUE" in row[TC.c.constraint_type.name]:
+                uniques.setdefault(row[C.c.constraint_name.name], {"column_names": []})
+                uniques[row[TC.c.constraint_name.name]]["column_names"].append(row[C.c.column_name.name])
+        return [
+            {"name": name, "column_names": uc["column_names"]}
+            for name, uc in uniques.items()
+        ]
+
+    def _get_constraints(self, connection, owner, tablename):
         TC = ischema.constraints
         C = ischema.key_constraints.alias("C")
-
         s = sql.select(
             [C.c.column_name, TC.c.constraint_type, C.c.constraint_name],
             sql.and_(
@@ -2536,17 +2535,8 @@ class MSDialect(default.DefaultDialect):
                 C.c.table_schema == owner,
             ),
         )
-        c = connection.execute(s)
 
-        uniques = {}
-        for row in c:
-            if "UNIQUE" in row[TC.c.constraint_type.name]:
-                uniques.setdefault(row[C.c.constraint_name.name], {"column_names": []})
-                uniques[row[TC.c.constraint_name.name]]["column_names"].append(row[C.c.column_name.name])
-        return [
-            {"name": name, "column_names": uc["column_names"]}
-            for name, uc in uniques.items()
-        ]
+        return C, TC, connection.execute(s)
 
     @reflection.cache
     @_db_plus_owner
