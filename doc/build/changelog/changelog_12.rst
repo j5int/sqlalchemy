@@ -11,6 +11,17 @@
         :start-line: 5
 
 .. changelog::
+    :version: 1.2.17+j5.2
+    :released: May 21, 2019
+
+    .. change::
+       :tags: feature, mssql
+
+        Implementing the `get_unique_constraints` method for mssql.
+        See [the merge request](https://github.com/j5int/sqlalchemy/pull/8) for details.
+
+
+.. changelog::
     :version: 1.2.17+j5.1
     :released: February 11, 2019
 
