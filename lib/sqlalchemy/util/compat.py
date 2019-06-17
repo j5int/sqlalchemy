@@ -12,7 +12,6 @@ from collections import namedtuple  # noqa
 from contextlib import contextmanager
 from operator import attrgetter as dottedgetter  # noqa
 import sys
-import time
 
 try:
     import threading
@@ -259,12 +258,6 @@ if py35:
 
 else:
     from inspect import formatargspec as inspect_formatargspec  # noqa
-
-if win32 or jython:
-    time_func = time.clock
-else:
-    time_func = time.time
-
 
 if py3k:
 
