@@ -1322,13 +1322,21 @@ class MSExecutionContext(default.DefaultExecutionContext):
                     and (
                         (
                             self.compiled.statement._has_multi_parameters
-                            and seq_column.key
-                            in self.compiled.statement.parameters[0]
+                            and (
+                                seq_column.key
+                                in self.compiled.statement.parameters[0]
+                                or seq_column
+                                in self.compiled.statement.parameters[0]
+                            )
                         )
                         or (
                             not self.compiled.statement._has_multi_parameters
-                            and seq_column.key
-                            in self.compiled.statement.parameters
+                            and (
+                                seq_column.key
+                                in self.compiled.statement.parameters
+                                or seq_column
+                                in self.compiled.statement.parameters
+                            )
                         )
                     )
                 )
@@ -2130,6 +2138,8 @@ class MSDialect(default.DefaultDialect):
         cursor = connection.cursor()
         cursor.execute("SET TRANSACTION ISOLATION LEVEL %s" % level)
         cursor.close()
+        if level == "SNAPSHOT":
+            connection.commit()
 
     def get_isolation_level(self, connection):
         if self.server_version_info < MS_2005_VERSION:
