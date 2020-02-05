@@ -11,6 +11,126 @@
         :start-line: 5
 
 .. changelog::
+    :version: 1.2.19
+    :released: April 15, 2019
+
+    .. change::
+       :tags: bug, orm
+       :tickets: 4507
+
+       Fixed a regression in 1.2 due to the introduction of baked queries for
+       relationship lazy loaders, where a race condition is created during the
+       generation of the "lazy clause" which occurs within a memoized attribute. If
+       two threads initialize the memoized attribute concurrently, the baked query
+       could be generated with bind parameter keys that are then replaced with new
+       keys by the next run, leading to a lazy load query that specifies the
+       related criteria as ``None``. The fix establishes that the parameter names
+       are fixed before the new clause and parameter objects are generated, so that
+       the names are the same every time.
+
+    .. change::
+       :tags: bug, oracle
+       :tickets: 4506
+
+       Added support for reflection of the :class:`.NCHAR` datatype to the Oracle
+       dialect, and added :class:`.NCHAR` to the list of types exported by the
+       Oracle dialect.
+
+
+    .. change::
+       :tags: bug, examples
+       :tickets: 4528
+
+       Fixed bug in large_resultsets example case where a re-named "id" variable
+       due to code reformatting caused the test to fail.  Pull request courtesy
+       Matt Schuchhardt.
+
+    .. change::
+       :tags: bug, mssql
+       :tickets: 4536
+       :versions: 1.3.1
+
+       A commit() is emitted after an isolation level change to SNAPSHOT, as both
+       pyodbc and pymssql open an implicit transaction which blocks subsequent SQL
+       from being emitted in the current transaction.
+
+    .. change::
+       :tags: bug, engine
+       :tickets: 4406
+
+       Comparing two objects of :class:`.URL` using ``__eq__()`` did not take port
+       number into consideration, two objects differing only by port number were
+       considered equal. Port comparison is now added in ``__eq__()`` method of
+       :class:`.URL`, objects differing by port number are now not equal.
+       Additionally, ``__ne__()`` was not implemented for :class:`.URL` which
+       caused unexpected result when ``!=`` was used in Python2, since there are no
+       implied relationships among the comparison operators in Python2.
+
+.. changelog::
+    :version: 1.2.18
+    :released: February 15, 2019
+
+    .. change::
+       :tags: bug, orm
+       :tickets: 4468
+
+       Fixed a regression in 1.2 where a wildcard/load_only loader option would
+       not work correctly against a loader path where of_type() were used to limit
+       to a particular subclass.  The fix only works for of_type() of a simple
+       subclass so far, not a with_polymorphic entity which will be addressed in a
+       separate issue; it is unlikely this latter case was working previously.
+
+
+    .. change::
+       :tags: bug, orm
+       :tickets: 4489
+
+       Fixed fairly simple but critical issue where the
+       :meth:`.SessionEvents.pending_to_persistent` event would be invoked for
+       objects not just when they move from pending to persistent, but when they
+       were also already persistent and just being updated, thus causing the event
+       to be invoked for all objects on every update.
+
+    .. change::
+       :tags: bug, sql
+       :tickets: 4485
+
+       Fixed issue where the :class:`.JSON` type had a read-only
+       :attr:`.JSON.should_evaluate_none` attribute, which would cause failures
+       when making use of the :meth:`.TypeEngine.evaluates_none` method in
+       conjunction with this type.  Pull request courtesy Sanjana S.
+
+    .. change::
+       :tags: bug, mssql
+       :tickets: 4499
+
+       Fixed bug where the SQL Server "IDENTITY_INSERT" logic that allows an INSERT
+       to proceed with an explicit value on an IDENTITY column was not detecting
+       the case where :meth:`.Insert.values` were used with a dictionary that
+       contained a :class:`.Column` as key and a SQL expression as a value.
+
+    .. change::
+       :tags: bug, sqlite
+       :tickets: 4474
+
+       Fixed bug in SQLite DDL where using an expression as a server side default
+       required that it be contained within parenthesis to be accepted by the
+       sqlite parser.  Pull request courtesy Bartlomiej Biernacki.
+
+    .. change::
+       :tags: bug, mysql
+       :tickets: 4492
+
+       Fixed a second regression caused by :ticket:`4344` (the first was
+       :ticket:`4361`), which works around MySQL issue 88718, where the lower
+       casing function used was not correct for Python 2 with OSX/Windows casing
+       conventions, which would then raise ``TypeError``.  Full coverage has been
+       added to this logic so that every codepath is exercised in a mock style for
+       all three casing conventions on all versions of Python. MySQL 8.0 has
+       meanwhile fixed issue 88718 so the workaround is only applies to a
+       particular span of MySQL 8.0 versions.
+
+.. changelog::
     :version: 1.2.17+j5.2
     :released: May 21, 2019
 
